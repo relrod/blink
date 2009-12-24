@@ -16,7 +16,7 @@ my $last_seen_messages = {};
 # Number of times a query should be made looking for something different
 # from the past message before giving up and returning the same message
 # with a note that there is only one entry.
-my $max_retrys = 3;
+my $max_retries = 3;
 
 
 my $dbh = DBI->connect("dbi:SQLite:dbname=db_blink.sqlite3","","",{AutoCommit=>1,PrintError=>1});
@@ -69,9 +69,9 @@ sub fetchr {
         return "No grabbed quotes for $who in this channel." unless @data;
 
         #How many times have we been through this function? If its
-        #larger then $max_retrys abort with a meaningful message letting
+        #larger then $max_retries abort with a meaningful message letting
         #the person making the query know there is only one entry.
-        return "Only entry: " . $data[0] if $calls > $max_retrys;
+        return "Only entry: " . $data[0] if $calls > $max_retries;
 
         #At this point we are pretty sure we have _a_ result from the
         #database, now lets check if that result is the same or not.
