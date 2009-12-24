@@ -14,6 +14,13 @@ my $dbh = DBI->connect("dbi:SQLite:dbname=db_blink.sqlite3","","",{AutoCommit=>1
 my $new_grab = $dbh->prepare("INSERT INTO grabs(by,who,message,channel) VALUES(?,?,?,?)");
 my $fetch_grab = $dbh->prepare("SELECT message FROM grabs WHERE who=? AND channel=? ORDER BY RANDOM()");
 
+#debugging function
+sub fetch_grab_row {
+  my ($who, $channel) = @_;
+  $fetch_grab->execute($who,$channel);
+  return $fetch_grab->fetchrow_array();
+}
+
 sub commit {
 	my($commitby,$who,$said,$channel) = @_;
 	if($new_grab->execute($commitby,$who,$said,$channel)){
@@ -27,8 +34,7 @@ sub fetchr {
 	my $who = shift;
 	my $channel = shift;
 	
-	$fetch_grab->execute($who,$channel);
-	my @data = $fetch_grab->fetchrow_array();
+	my @data = fetch_grab_row($who, $channel);
 	if(int(@data) != 0){
 		return @data[int(rand(@data))]
 	} else {
