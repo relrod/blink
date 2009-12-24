@@ -21,6 +21,7 @@ sub fetch_grab_row {
   return $fetch_grab->fetchrow_array();
 }
 
+#A commit here means adding a new quote to the database.x
 sub commit {
 	my($commitby,$who,$said,$channel) = @_;
 	if($new_grab->execute($commitby,$who,$said,$channel)){
@@ -30,6 +31,7 @@ sub commit {
 	}
 }
 
+#Grab one row from the database.
 sub fetchr {
 	my $who = shift;
 	my $channel = shift;
@@ -38,7 +40,7 @@ sub fetchr {
 	if(int(@data) != 0){
 		return @data[int(rand(@data))]
 	} else {
-		return "No grabbed quotes for $who, in this channel.";
+		return "No grabbed quotes for $who in this channel.";
 	}
 }
 
