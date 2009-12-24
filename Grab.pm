@@ -60,11 +60,8 @@ sub fetchr {
 	my $channel = shift;
 	
 	my @data = fetch_grab_row($who, $channel);
-	if (@data) {
-		return $data[0];
-	} else {
-		return "No grabbed quotes for $who in this channel.";
-	}
+        return "No grabbed quotes for $who in this channel." unless @data;
+        return $data[0];
 }
 
 sub count {
@@ -76,6 +73,11 @@ sub count {
    } else {
       return "$who hasn't been grabbed in $channel, yet.";
    }
+}
+
+sub test_fetchr {
+  print fetchr("nixeagle", "#offtopic") . "\n"; #should work
+  print fetchr("nixeagle", "#offtopic_nothere") . "\n"; #should say no messages.
 }
 
 1; # Make perl happy. :D
