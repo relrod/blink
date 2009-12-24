@@ -1,0 +1,12 @@
+* Dependencies
+./Lang.pm:7:use  WebService::Google::Language;
+./Lang.pm:9:use Net::Dict;
+./Lang.pm:10:use URL;
+./Lang.pm:11:use LWP::UserAgent;
+./Lang.pm:14:use Data::Dumper;
+./URL.pm:11:use Image::Size;
+./URL.pm:13:use HTML::Entities;
+./URL.pm:14:use URI::Escape;
+./Astro.pm:9:use Weather::Underground;
+./Music.pm:9:use Net::LastFM;
+./Grab.pm:9:use DBI;
