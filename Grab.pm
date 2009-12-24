@@ -76,7 +76,11 @@ sub fetchr {
 
         #At this point we are pretty sure we have _a_ result from the
         #database, now lets check if that result is the same or not.
-        return $data[0];
+        if (check_seen_messages($who, $channel, $data[0])) {
+          return $data[0];
+        } else {
+          return fetchr($who, $channel, ++$calls)
+        }
 }
 
 sub count {
