@@ -34,7 +34,10 @@ sub check_seen_messages {
   }
 }
 
-#debugging function
+#Fetch one row from the database. The row is assumed to be randomly
+#selected. We do not do any checks such as making sure we have not seen
+#the row before here.
+
 sub fetch_grab_row {
   my ($who, $channel) = @_;
   $fetch_grab->execute($who,$channel);
