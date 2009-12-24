@@ -10,11 +10,13 @@ use DBI;
 use Data::Dumper;
 my $dbh = DBI->connect("dbi:SQLite:dbname=db_blink.sqlite3","","",{AutoCommit=>1,PrintError=>1});
 
+#prep for queries
+my $new_grab = $dbh->prepare("INSERT INTO grabs(by,who,message,channel) VALUES(?,?,?,?)");
+my $fetch_grab = $dbh->prepare("SELECT message FROM grabs WHERE who=? AND channel=? ORDER BY RANDOM()");
+
 sub commit {
 	my($commitby,$who,$said,$channel) = @_;
-	my $prep = $dbh->prepare("INSERT INTO grabs(by,who,message,channel) VALUES(?,?,?,?)");
-	
-	if($prep->execute($commitby,$who,$said,$channel)){
+	if($new_grab->execute($commitby,$who,$said,$channel)){
 		return 1;
 	} else {
 		return 0;
@@ -24,9 +26,9 @@ sub commit {
 sub fetchr {
 	my $who = shift;
 	my $channel = shift;
-	my $prep = $dbh->prepare("SELECT message FROM grabs WHERE who=? AND channel=? ORDER BY RANDOM()");
-	$prep->execute($who,$channel);
-	my @data = $prep->fetchrow_array();
+	
+	$fetch_grab->execute($who,$channel);
+	my @data = $fetch_grab->fetchrow_array();
 	if(int(@data) != 0){
 		return @data[int(rand(@data))]
 	} else {
