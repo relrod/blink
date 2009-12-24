@@ -62,8 +62,7 @@ sub commit {
 
 #Grab one row from the database.
 sub fetchr {
-	my $who = shift;
-	my $channel = shift;
+        my ($who, $channel) = (shift, shift);
         my $calls = shift || 0;
 	
 	my @data = fetch_grab_row($who, $channel);
