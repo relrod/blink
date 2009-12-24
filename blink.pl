@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 #@ Ricky Elrod - blink.pl
-#@ Modified: Wed Sep 23 16:24:02 EDT 2009
+#@ Modified: Mon Oct 12 20:29:15 EDT 2009
 
 # The start of a new daw-- bot.
 # The purpose of this bot is to replace the ruby-coded 'haz' bot, and 
@@ -20,11 +20,17 @@ use Crypt::SSLeay;
 # Bot classes go here:
 use Lang;
 use URL;
+use Astro;
+use Grab;
 
 package Blink;
 use base qw( Bot::BasicBot );
 use Data::Dumper;
 my $version = "1.0";
+
+# Welcome to the world of !grab
+my $grabs;
+my $action;
 
 sub said {
 	my $self       = shift;
@@ -35,41 +41,113 @@ sub said {
 	my @rlmask     = split(/\@/,$rawnick);
 	my $mask       = $rlmask[1];
 	my $channel    = $info->{channel};
-	
-	if($text =~ /^!version$/i){
-		$self->reply($info,"Blink. Version $version. By CodeBlock. *blink blink*.");
-	}
+	my $is_action  = $action;
+	undef($action);
 
-	elsif($text =~ /^!(?:translate|tr|lang) ([\w]+)\|([\w]+) (.*)/i){
-		# From, To, Stuff.
-		my $translation = Lang::translate($1,$2,$3);
-		return $translation;
-	}
 
-	elsif($text =~ /\[(https?:\/\/[\S\.]+)\]/i){
-		my $shorturl = URL::shorten($1);
-		if($1 =~ /.*\.(?:jpg|gif|psd|bpm|png|jpeg|tiff|tif)/i){
-			# Image....obviously.
-			my $imagesize = URL::imagesize($shorturl);
-			return "$shorturl - $imagesize";
-		} else {
-			# Otherwise, assume a legitimate, real, site.
-			my $title = URL::title($1);
-			return "$shorturl :: $title";
-		}
-	}
+	$grabs->{$channel}->{lc($nick)}->{'text'} = $text;
+	$grabs->{$channel}->{lc($nick)}->{'action'} = $is_action;
 
-	elsif($text =~ /!(?:dict|define) (.*)/i){
-		my $word = $1;
-		my $definition = Lang::define($word);
-		return $definition;
-	}
+   if($nick !~ /(?:Sneeze)/i){
+   	
+   	if($text =~ /^!version$/i){
+   		$self->reply($info,"Blink. Version $version. By CodeBlock. *blink blink*.");
+   	}
+   
+   	elsif($text =~ /^!(?:translate|tr|lang) ([\w]+)\|([\w]+) (.*)/i){
+   		# From, To, Stuff.
+   		my $translation = Lang::translate($1,$2,$3);
+   		return $translation;
+   	}
+   
+   	elsif($text =~ /(?:\[|<)(https?:\/\/[\S\.]+)(?:\]|>)/i){
+   		my $shorturl = URL::shorten($1);
+   		if($1 =~ /.*\.(?:jpg|gif|psd|bpm|png|jpeg|tiff|tif)/i){
+   			# Image....obviously.
+   			my $imagesize = URL::imagesize($shorturl);
+   			return "$shorturl - $imagesize";
+   		} else {
+   			# Otherwise, assume a legitimate, real, site.
+   			my $title = URL::title($1);
+   			return "$shorturl :: $title";
+   		}
+   	}
+   
+   	elsif($text =~ /^!(?:dict|define) (.*)/i){
+   		my $word = $1;
+   		my $definition = Lang::define($word);
+   		return $definition;
+   	}
+   
+   	elsif($text =~ /^!join #([\w\-\d\`\_\#]+)/i){
+   		my $channel = $1;
+   		$self->join("#$channel");
+   		return;
+   	}
+   
+   	elsif($text =~ /^!(?:wx|weather|w) ([\w\,\ \d]+)/i){
+   		my $location = $1;
+   		my $weather = Astro::fetchweather($location);
+   		return $weather;
+   	}
+   
+   	elsif($is_action and $text =~ /^sneezes/i){
+   		return "blinks.";
+   	}
+   
+   	elsif($text =~ /^!(grab|get|grope) ([\w\-\d\`\_]+)/i){
+   		my $command = $1;
+   		my $who = lc($2);
+   		if(defined($grabs->{$channel}->{$who}->{'text'})){
+   			my $quote = $grabs->{$channel}->{$who}->{'text'};
+   			if(lc($quote) eq lc("!$command $who")){
+   				return "Cannot grab your own quote....";
+   			} elsif(lc($who) eq "blink") {
+               return "I will not grab myself. Ever.";
+            }
+   
+   			if($grabs->{$channel}->{$who}->{'action'}){
+   				$quote = "* $who $quote";
+   			} else {
+   				$quote = "<$who> $quote";
+   			}
+   			if(!Grab::commit($nick,$who,$quote,$channel)){
+   				$self->say(who=>"#codeblock",body=>"An error has occured while executing Grab::commit(). [$nick] [$who] [$quote]");
+   			}
+   			if($command eq "grab" or $command eq "get"){
+   				return "Grabbed $who\'s last quote.";
+   			} elsif($command eq "grope"){
+   				return chr(1)."ACTION gropes $who".chr(1);
+   			}
+   
+   		} else {
+   			return "$who hasn't spoken yet, so I cannot grab his/her latest quote.";
+   		}
+   	}
+   
+   	elsif($text =~ /!(?:qc|quotecount|count|grabcount) (.*)/i){
+   		my $who = lc($1); #lc() for backwards compat.
+   		return Grab::count($who,$channel);
+   	}
+   
+   	elsif($text =~ /^!rq ([\w\-\d\`\_]+)/i){
+   		my $who = lc($1); #lc() for backwards compat.
+   		return Grab::fetchr($who,$channel);
+   	}
+   }
+   	return;
+}
+   
+sub emoted {
+   $action = 1;
+   shift->said(@_);
 }
 
 my $eighthbit = Blink->new(
 	server      => "irc.eighthbit.net",
 	port        => 6667,
-	channels    => ["#fail","#offtopic"],
+   channels    => ["#fail","#offtopic","#programming", "#codeblock", "#bots", "#ubuntu-advanced"],
+   #channels    => ["#bots"],
 	nick        => "Blink",
 	username    => "sneeze",
 	name        => "Blink-Blink..what's a name?",
@@ -78,10 +156,10 @@ my $eighthbit = Blink->new(
 );
 
 
-my $vega = Blink->new(
-	server      => "vega.eighthbit.net",
+my $fuse = Blink->new(
+	server      => "irc.fuseirc.net",
 	port        => 6667,
-	channels    => ["#nixeagle","#raw"],
+	channels    => ["#main"],
 	nick        => "Blink",
 	username    => "sneeze",
 	name        => "Blink-Blink..what's a name?",
@@ -90,7 +168,7 @@ my $vega = Blink->new(
 );
 
 $eighthbit->run();
-$vega->run();
+#$fuse->run();
 use POE;
 $poe_kernel->run();
 

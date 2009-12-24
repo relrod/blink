@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 #@ Ricky Elrod - URL.pm
-#@ Modified: Sat Sep 26 13:15:27 EDT 2009
+#@ Modified: Sat Oct 03 18:06:17 EDT 2009
 
 # This is for the URL-* set of modules for Blink.
 # For simple stuff like the is.gd module, we use make our own function,
@@ -10,22 +10,33 @@ use warnings;
 use strict;
 use Image::Size;
 use LWP::UserAgent;
-#use HTML::Entities;
+use HTML::Entities;
 use URI::Escape;
 
 package URL;
 
 sub getcontents {
 	my $url = shift;
+   my $picture = shift || 0;
 	# $url really *should* be prefixed with http:// or https://... but if it wasn't...
 	# lets just throw a simple check in and append http:// if it's not in $url.
 	if($url !~ /^https?:\/\//i){
 		$url = 'http://'.$url;
 	}
 	my $ua = LWP::UserAgent->new;
-	$ua->timeout(5); #TODO-LATE: Store these settings in a database.
-	$ua->max_size(1220);
-	return $ua->get($url)->decoded_content;
+   my $contents;
+   $ua->agent('Mozilla/5.0 (X11; U; FreeBSD i386; ru-RU; rv:1.9.1.3) Gecko/20090913 Firefox/3.5.4');
+   if($picture){
+      $ua->timeout(8);
+      $ua->max_size(524288);
+      $contents = $ua->get($url)->decoded_content;
+   } else {
+   	$ua->timeout(5);
+   	$ua->max_size(1220);
+      $contents = $ua->get($url)->decoded_content;
+      $contents =~ s/[^(\x20-\x7F)]*//g;
+   }
+	return $contents;
 }
 
 sub shorten {
@@ -53,7 +64,9 @@ sub title {
 	$contents =~ s/\r//g;
 	$contents =~ s/\n//g;
 	if($contents =~ /<title>(.*)<\/title>/i){
-		return $1;
+		my $title = $1;
+		$title =~ s/<(?:[^>'"]*|(['"]).*?\1)*>//gs;
+		return HTML::Entities::decode_entities($title);
 	} else {
 		return 'No <title> tag found.';
 	}
@@ -61,9 +74,9 @@ sub title {
 
 sub imagesize {
 	my $url = shift;
-	my $img = getcontents($url);
+	my $img = getcontents($url,1);
 	my($width,$height) = Image::Size::imgsize(\$img);
 	return $width.'x'.$height.' px';
 }
 
-1; # Make perl happy.
+1; # Make perl happy. :D

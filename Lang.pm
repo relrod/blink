@@ -5,7 +5,8 @@
 use warnings;
 use strict;
 use WebService::Google::Language;
-use XML::Simple;
+#use XML::Simple; # Screw this, using the DICT protocol now.
+use Net::Dict;
 use URL;
 use LWP::UserAgent;
 
@@ -32,34 +33,16 @@ sub translate {
 
 sub define {
 	my $word = shift;
-	my $xml = URL::getcontents("http://services.aonaware.com/DictService/DictService.asmx/DefineInDict?dictId=wn&word=$word");
-	#my $gettype = XML::Simple::XMLin($xml);
-	#my $mainxml = $gettype->{Definitions}->{Definition};
-	#return "Definition not found." if(!defined($mainxml));
-	#my $type = ref($mainxml);#->[1]->{WordDefinition};
-	#my $full;
-	#return Data::Dumper::Dumper($full = $gettype->{Definitions}->{Definition});
-	#return $xml;
-	return "This function is currently broken. Tell CB to get off his lazy behind and fix it.";
-	#if($type eq 'HASH'){
-	#	$full = $gettype->{Definitions}->{Definition}->{WordDefinition};
-	#} elsif ($type eq 'ARRAY'){
-	#	$full = $gettype->{Definitions}->{Definition}->[0]->{WordDefinition};
-	#}
-	#$full =~ s/\n/ /g;
-	#$full =~ s/\\'/'/g;
-	#$full =~ s/       / /g;
-	#$full =~ s/^\S+\s+//;
-	#my $truncate = substr($full,0,250);
-	#if(length($truncate) < length($full)){
-	#	return $truncate.'...';
-	#} else {
-	#	return $truncate;
-	#}
-
+   my $dict = Net::Dict->new('dict.org');
+   $dict->setDicts('wn', 'web1913');
+   my $proc = $dict->define($word);
+   my $definition = $proc->[0]->[1];
+   $definition =~ s/\n//g;
+   $definition =~ s/\r//g;
+   $definition =~ s/\t//g;
+   $definition =~ s/ +/ /g;
+   $definition = substr($definition, 0, 275);
+   return $definition;
 }
 
-#print Dumper(define('broken'));
-#print Dumper($test);
-
-1; # Make perl happy.
+1; # Make perl happy. :D
