@@ -37,7 +37,7 @@ sub fetchr {
 	my $channel = shift;
 	
 	my @data = fetch_grab_row($who, $channel);
-	if(int(@data) != 0){
+	if (@data) {
 		return @data[int(rand(@data))]
 	} else {
 		return "No grabbed quotes for $who in this channel.";
