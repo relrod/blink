@@ -26,6 +26,7 @@ use Grab;
 package Blink;
 use base qw( Bot::BasicBot );
 use Data::Dumper;
+use Math::BaseCnv;
 my $version = "1.0";
 
 # Welcome to the world of !grab
@@ -59,6 +60,11 @@ sub said {
    		my $translation = Lang::translate($1,$2,$3);
    		return $translation;
    	}
+
+      elsif($text =~ /^!(?:base|baseconvert|convert) ([\d-]+) ([\d-]+) ([\d-]+)/i){
+         my $conv = cnv($3,$1,$2);
+         return "$nick: $3 (base $1) in the base of $2 is... $conv";
+      }
    
    	elsif($text =~ /(?:\[|<)(https?:\/\/[\S\.]+)(?:\]|>)/i){
    		my $shorturl = URL::shorten($1);
@@ -146,7 +152,7 @@ sub emoted {
 my $eighthbit = Blink->new(
 	server      => "irc.eighthbit.net",
 	port        => 6667,
-   channels    => ["#fail","#offtopic","#programming", "#codeblock", "#bots", "#ubuntu-advanced"],
+   channels    => ["#illusion","#offtopic","#programming", "#codeblock", "#bots", "#ubuntu-advanced"],
    #channels    => ["#bots"],
 	nick        => "Blink",
 	username    => "sneeze",
