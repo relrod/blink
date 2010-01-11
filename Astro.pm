@@ -34,8 +34,8 @@ sub fetchweather {
 		my $tempc = $weatherinfo->[0]->{'celsius'};
 		my $humidity = $weatherinfo->[0]->{'humidity'};
 		my $conditions = $weatherinfo->[0]->{'conditions'};
-      $conditions = 'Clear Skies' if $conditions eq 'Clear';
-		return "Weather for ($place): Currently, this location is experiencing $conditions. "
+                $conditions = 'Clear Sky' if $conditions eq 'Clear';
+		return "Weather for ($place): Currently, this location is experiencing $conditions conditions. "
 			." $windresponse. Temperature is "
 			.$tempf."F (".$tempc."C), and humidity is $humidity%. Visibility is $visibility miles.";
 	} else {
