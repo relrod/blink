@@ -12,6 +12,7 @@
 
 use warnings;
 use strict;
+use utf8;
 
 # *GLOBAL* modules.
 use LWP::UserAgent;
@@ -22,6 +23,7 @@ use Lang;
 use URL;
 use Astro;
 use Grab;
+use Convert;
 
 package Blink;
 use base qw( Bot::BasicBot );
@@ -84,12 +86,31 @@ sub said {
    		my $definition = Lang::define($word);
    		return $definition;
    	}
+
+      elsif($text =~ /^!colorwheel$/i) {
+         my $colorsheel = "";
+         $colorwheel  = chr(3).'1,00 0 '.chr(3) . chr(3).'0,01 1 '.chr(3);
+         $colorwheel .= chr(3).'0,02 2 '.chr(3) . chr(3).'0,03 3 '.chr(3);
+         $colorwheel .= chr(3).'0,04 4 '.chr(3) . chr(3).'0,05 5 '.chr(3);
+         $colorwheel .= chr(3).'0,06 6 '.chr(3) . chr(3).'0,07 7 '.chr(3);
+         $colorwheel .= chr(3).'1,08 8 '.chr(3) . chr(3).'1,09 9 '.chr(3);
+         $colorwheel .= chr(3).'0,10 10 '.chr(3) . chr(3).'1,11 11 '.chr(3);
+         $colorwheel .= chr(3).'0,12 12 '.chr(3) . chr(3).'1,13 13 '.chr(3);
+         $colorwheel .= chr(3).'0,14 14 '.chr(3) . chr(3).'1,15 15 '.chr(3);
+         return $colorwheel;
+      }
+
    
    	elsif($text =~ /^!join #([\w\-\d\`\_\#]+)/i){
    		my $channel = $1;
    		$self->join("#$channel");
    		return;
    	}
+
+      elsif($text =~ /^!(?:calc|gcalc|googlecalc|calculate|math) (.+)/i){
+         my $eq = $1;
+         return Convert::calculate($eq);
+      }
    
    	elsif($text =~ /^!(?:wx|weather|w) ([\w\,\ \d]+)/i){
    		my $location = $1;
