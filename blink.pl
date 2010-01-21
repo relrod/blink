@@ -88,7 +88,7 @@ sub said {
    	}
 
       elsif($text =~ /^!colorwheel$/i) {
-         my $colorsheel = "";
+         my $colorwheel = "";
          $colorwheel  = chr(3).'1,00 0 '.chr(3) . chr(3).'0,01 1 '.chr(3);
          $colorwheel .= chr(3).'0,02 2 '.chr(3) . chr(3).'0,03 3 '.chr(3);
          $colorwheel .= chr(3).'0,04 4 '.chr(3) . chr(3).'0,05 5 '.chr(3);
