@@ -33,6 +33,7 @@ sub fetchweather {
 		my $tempf = $weatherinfo->[0]->{'temperature_fahrenheit'};
 		my $tempc = $weatherinfo->[0]->{'celsius'};
 		my $humidity = $weatherinfo->[0]->{'humidity'};
+      $humidity = "unknown" if $humidity == "999";
 		my $conditions = $weatherinfo->[0]->{'conditions'};
                 $conditions = 'Clear Sky' if $conditions eq 'Clear';
 		return "Weather for ($place): Currently, this location is experiencing $conditions conditions. "
