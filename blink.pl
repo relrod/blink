@@ -12,7 +12,7 @@
 
 use warnings;
 use strict;
-use utf8;
+use encoding 'utf8';
 
 # *GLOBAL* modules.
 use LWP::UserAgent;
@@ -24,6 +24,7 @@ use URL;
 use Astro;
 use Grab;
 use Convert;
+use GitHub;
 
 package Blink;
 use base qw( Bot::BasicBot );
@@ -56,6 +57,10 @@ sub said {
    	if($text =~ /^!version$/i){
    		$self->reply($info,"Blink. Version $version. By CodeBlock. *blink blink*.");
    	}
+
+      elsif($text =~ /^!github ([\w\d\-\.\,]+)\/([\w\d\-\.\,]+)/i){
+         $self->reply($info, GitHub::repoinfo($1,$2));
+      }
    
    	elsif($text =~ /^!(?:translate|tr|lang) ([\w]+)\|([\w]+) (.*)/i){
    		# From, To, Stuff.
@@ -173,13 +178,14 @@ sub emoted {
 my $eighthbit = Blink->new(
 	server      => "irc.eighthbit.net",
 	port        => 6667,
+   ssl         => 0,
    channels    => ["#illusion","#offtopic","#programming", "#codeblock", "#bots", "#ubuntu-advanced"],
    #channels    => ["#bots"],
 	nick        => "Blink",
 	username    => "sneeze",
 	name        => "Blink-Blink..what's a name?",
 	charset     => "utf-8",
-	no_run      => 1,
+   no_run      => 1,
 );
 
 
@@ -198,4 +204,3 @@ $eighthbit->run();
 #$fuse->run();
 use POE;
 $poe_kernel->run();
-
